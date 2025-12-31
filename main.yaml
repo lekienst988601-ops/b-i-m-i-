@@ -1,0 +1,73 @@
+# ======== CONFIGURATION FILE FOR TRAINING / TESTING ========
+# RENAME THE RUN NAME FOR A NEW RUN
+
+# ======= RUN ======= #
+run: 
+  name: SAC_robot_weight_5kg_force 
+
+# ======= MODEL ======= #
+model:
+  name: SAC #SAC #Reinforce #DQN #MAA2C #A2C
+  learning_rate_actor: 1.0e-4
+  learning_rate_critic: 1.0e-4
+  batch_size: 1 # num of steps before update
+  gamma: 0.99
+  hidden_layer_size: [128,128,128] #[512,256,128] #[2048,1024,512] #[128,128,128]
+  weight_decay: [0,0,0]
+  dropout_rate: [0,0,0]
+  tau: 0.005
+
+# ======= EPSILON GREEDY ======= #
+epsilon_greedy:
+  eps_init: 0.95
+  eps_end: 0.05
+  eps_decay: 1.0e-4
+  epsilon_decay_type: 'linear' #linear, exponential, stretched
+  stretched_A: 0.5
+  stretched_B: 0.1
+  stretched_C: 0.1
+
+# ======= TRAINING ======= #
+training:
+  device: 'cpu' #'auto' # auto, cpu, cuda:0
+  num_workers: 40 # num of cpu cores to use for parallel computation
+  num_train_episodes: 10000
+  max_steps_per_episode: 50000 # 20secs per ep
+  n_step: False
+  base_results_dir: './results/train/'
+  save_model_weights: True
+
+# ======= TESTING ======= #
+testing:
+  device: 'auto' # auto, cpu, cuda:0
+  num_workers: 40 # num of cpu cores to use for parallel computation
+  num_test_episodes: 1000
+  max_steps_per_episode: 50000 # 100secs per ep
+  base_results_dir: './results/test/' # defines the base directory to create a folder with the config yaml name
+  record_video: True
+  load_model_weights_path: './results/train/SAC_robot_weight_5kg_force/best_model.pt'
+
+# ======= ENVIRONMENT ======= #
+environment:
+  render_mode: 'DIRECT' # DIRECT, GUI
+  video_mode: False # for recording video in direct mode
+  enable_keyboard: False
+  environment_type: 'SLOPE' #'FLAT' #'SLOPE'
+  goal_type: 'distance' #'time' #'distance'
+  x_distance_to_goal: 40
+  goal_step: 400 # 20 seconds
+  time_step_size: 1/20 # user time step size, controls frequency of action made by the robot
+  distance_to_goal_penalty: 0.7
+  time_penalty: 0.2
+  target_velocity_change: 0.5
+
+# ======= PLOTTING ======= #
+plotting:
+  plot_trajectories_episode_interval: 500
+  record_trajectory_time_step_interval: 10 # decrease to increase rate of recording coordinates
+
+# ======= HYPERPARAMETER TUNING ======= #
+hyperparameter_tuning:
+  type: model #epsilon_greedy #model #'environment'
+  tuning_variable: learning_rate_actor #name #learning_rate_actor #epsilon_decay_type #'x_distance_to_goal' 
+  value_list: [1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5, 1.0e-6] 
